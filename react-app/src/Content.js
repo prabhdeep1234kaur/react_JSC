@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FaTrashAlt } from "react-icons/fa";
 
 const Content = () => {
     /**
@@ -9,42 +10,90 @@ const Content = () => {
      * when handleNameChange is called (on click) > we are setting setName : state changed
      * 
      * */
-    const[name, setName] = useState('Prabh');//not directly changing it
+    const[items, setItems] = useState([
+      {
+        id: 1,
+        checked: true,
+        item: 'Beige Shoes from Call It Spring'
+      },
+      {
+        id: 2,
+        checked: false,
+        item: 'Maroon handbag from Coach'
+      },
+      {
+        id: 3,
+        checked: false,
+        item: 'Sunglasses from Prada'
+      }
+    ]);//not directly changing it
 
-    const [count, setCount] = useState(0); //default is 0
+    const handleCheck = (id) => { //arrow func
+      /*
+      using higher order function MAP
+      1. changing the array list by first looping through it using map
+      2. matching the id being checked with array id
+      3. if it matches (?), lets change the array from existing to current and checked value to opposite of whatever exists
+      4. if it doesn't match (:), lets not change the checked item.
 
-    const handleNameChange = () => {
-      const names = ['Uoo', 'Tanya', 'Sam', 'Nelly'];
-      const int = Math.floor(Math.random() * names.length); // Fix the index to be within bounds
-      //return names[int];
-      setName(names[int]); //state is setting here
+      This won't change the default value and when reload, it goes back to the default state
+      */
+      
+      const listItems = items.map((item)=>item.id === id ? {
+        ...item, 
+        checked: !item.checked //make it the opposite of what is being in arr
+      } : item);
+      setItems(listItems); //changing the state (of "checked value in array")
+      localStorage.setItem('Shoppinglist', JSON.stringify(listItems)); //saved under Shoppinglist in our local storage
+
     }
 
-    const handleClick = () =>{
-      setCount(count + 1);
-      setCount(count + 1);
-      console.log(count);
+    const handleDelete = (id) => {
+      const newList = items.filter(
+        (item)=>item.id !== id
+      ); //clears new arr of filtered items which is not equal to id we sent, so removed the item
+      setItems(newList);
+      localStorage.setItem('Shoppinglist', JSON.stringify(newList));
     }
 
-    const handleClick2 = () =>{
-      console.log(count);
-    }
     return (
       <main>
-          <p onDoubleClick={handleClick}>
-            Hello {name}, your shopping list is as follows:
-          </p>
-
-          <button onClick={handleNameChange}>Click it!</button>
-
-          <button onClick={handleClick}>Click name</button>
-
-          <button onClick={handleClick2}>Click Event</button>
+          {items.length ? (
+            <ul>
+            {items.map((item) => ( //each item in react needs a key : its mandatory => to identify the change/added/removed : react uses response for change
+              <li className="item" key={item.id}>
+                <input 
+                  type="checkbox"
+                  onChange={()=>handleCheck(item.id)} //anonymous func
+                  checked={item.checked}
+                />
+                <label 
+                  style={(item.checked) ? {textDecoration: "line-through"} : null}
+                  onDoubleClick={()=>handleCheck(item.id)}
+                >{item.item}
+                </label>
+                {/*<button>Delete</button>*/}
+                <FaTrashAlt 
+                  onClick={()=>handleDelete(item.id)}
+                  role="button" 
+                  tabIndex="0" 
+                />
+              </li>
+            ))}
+            </ul>
+          ) : (
+            <p style={{
+              marginTop : '2rem'
+            }} >Your List is Empty</p>
+          )}
+          
       </main>
     );
   };
 
   //() is not added after some func : otherwise they will be clicked immediatly like handleNameChange
   //handleClick2 is not clicked : because it is anonymous function
+
+  //npm install react-icons --save || npm install react-icons -D : utilizes es6 imports and utilizes only we need
   
   export default Content
