@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import Header from './Header';
 import SearchItem from "./SearchItem";
 import AddItem from "./AddItem";
@@ -7,15 +8,13 @@ import Footer from './Footer';
 function App() {
 
   //data taken from content js
-  const[items, setItems] = useState(JSON.parse(localStorage.getItem('Shoppinglist')));
-
+  const[items, setItems] = useState(JSON.parse(localStorage.getItem('Shoppinglist')) || []); //add empty array usful when the app is loaded first time and has an empty array to set the state with
   const[search, setSearch] = useState("");
 
-  //setting and savinging items
-  const setAndSaveItems = (newItems) => {
-    setItems(newItems);
-    localStorage.setItem('Shoppinglist', JSON.stringify(newItems));
-  }
+  //useEFfect : everytime items change we set new
+  useEffect(()=>{
+    localStorage.setItem('Shoppinglist', JSON.stringify(items));
+  }, [items])
 
   //for form 
   const [newItem, setNewItem] = useState ("");
@@ -25,7 +24,7 @@ function App() {
     const id = items.length ? items[items.length - 1].id+1 : 1;
     const myNewItem = {id, checked: false, item};
     const listItems = [...items, myNewItem];
-    setAndSaveItems(listItems);
+    setItems(listItems);
   }
 
   //drilling functions too
@@ -34,14 +33,14 @@ function App() {
       ...item, 
       checked: !item.checked //make it the opposite of what is being in arr
     } : item);
-    setAndSaveItems(listItems);
+    setItems(listItems);
   }
 
   const handleDelete = (id) => {
     const newList = items.filter(
       (item)=>item.id !== id
     ); //clears new arr of filtered items which is not equal to id we sent, so removed the item
-    setAndSaveItems(newList);
+    setItems(newList);
   }
 
   const handleSubmit = (e) => {
