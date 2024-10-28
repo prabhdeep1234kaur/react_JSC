@@ -1,0 +1,19 @@
+{
+    "items": [
+        {
+            "id": 1,
+            "checked": false,
+            "item": "Coach Bag"
+        },
+        {
+            "id": 2,
+            "checked": false,
+            "item": "Aldo Shoes"
+        },
+        {
+            "id": 3,
+            "checked": false,
+            "item": "Mac Makeup"
+        }
+    ]
+}

@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import Header from './Header';
 import SearchItem from "./SearchItem";
 import AddItem from "./AddItem";
@@ -11,7 +10,7 @@ function App() {
   const[items, setItems] = useState(JSON.parse(localStorage.getItem('Shoppinglist')) || []); //add empty array usful when the app is loaded first time and has an empty array to set the state with
   const[search, setSearch] = useState("");
 
-  //useEFfect : everytime items change we set new
+  //useEFfect : everytime items change we set new not onload like with setAndSaveitem
   useEffect(()=>{
     localStorage.setItem('Shoppinglist', JSON.stringify(items));
   }, [items])
