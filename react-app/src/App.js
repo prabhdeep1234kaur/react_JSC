@@ -5,18 +5,37 @@ import AddItem from "./AddItem";
 import Content from './Content';
 import Footer from './Footer';
 function App() {
-
-  //data taken from content js
-  const[items, setItems] = useState(JSON.parse(localStorage.getItem('Shoppinglist')) || []); //add empty array usful when the app is loaded first time and has an empty array to set the state with
-  const[search, setSearch] = useState("");
+  const API_URL = 'http://localhost:3500/items' //it is const and won't change the url
+  const [items, setItems] = useState([]); //inital loading the app with this state
+  const [newItem, setNewItem] = useState ("");
+  const [search, setSearch] = useState("");
+  const [fetchError, setFetchError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   //useEFfect : everytime items change we set new not onload like with setAndSaveitem
   useEffect(()=>{
-    localStorage.setItem('Shoppinglist', JSON.stringify(items));
-  }, [items])
+    //on load time: happens one time and load data from api, but then managed via state
+    //async with useEffect : Call async func.
+    const fetchItems = async () => {
+      try{
+        const response = await fetch(API_URL);
+        //look for error
+        if(!response.ok) throw Error('Did not receive expected data');        
+        const listItems = await response.json();
+        setItems(listItems);
+        setFetchError(null); 
+      }catch(err){
+        setFetchError(err.message);
+      }finally{
+        setIsLoading(false);
+      }
+    }
+    //calling the async function : fetchItem does not return a value. therefore, this async IIFE is not required. just make a call to fetchitems()
+    setTimeout(() => { //to replicate a server API (slowness)
+      (async () => await fetchItems())();
+    }, 2000);
+  }, [])
 
-  //for form 
-  const [newItem, setNewItem] = useState ("");
 
   //adding item
   const addItem = (item) => {
@@ -30,7 +49,7 @@ function App() {
   const handleCheck = (id) => { //arrow func
     const listItems = items.map((item)=>item.id === id ? {
       ...item, 
-      checked: !item.checked //make it the opposite of what is being in arr
+      checked: !item.checked
     } : item);
     setItems(listItems);
   }
@@ -64,11 +83,19 @@ function App() {
         setNewItem={setNewItem}
         handleSubmit={handleSubmit}
       />
-      <Content 
-        items={items.filter(item => (item.item).toLowerCase().includes(search.toLocaleLowerCase()))} //being passed to content
-        handleCheck={handleCheck}
-        handleDelete={handleDelete}
-      />
+      <main>
+        {
+          isLoading && <p> Loading Items ... </p>
+        }
+        {
+          fetchError && <p style={{color: "red"}}>{`Error: ${fetchError}`}</p>
+        }
+        {!fetchError && !isLoading && <Content 
+          items={items.filter(item => (item.item).toLowerCase().includes(search.toLocaleLowerCase()))} //being passed to content
+          handleCheck={handleCheck}
+          handleDelete={handleDelete}
+        />}
+      </main>
       <Footer length={items.length} />
     </div>
   );
